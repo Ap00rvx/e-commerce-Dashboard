@@ -4,3 +4,4 @@ const controlller = require("../controller/product_controller");
 
 
 router.post("/createSeller",controlller.createProduct); 
+module.exports = router; 

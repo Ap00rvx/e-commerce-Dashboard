@@ -33,6 +33,7 @@ class ProductController {
             } 
             
         }catch(err){
+            console.log(err);
             res.status(500).send({"status":"failed","message":"Internal Server Error"}); 
         }
     }

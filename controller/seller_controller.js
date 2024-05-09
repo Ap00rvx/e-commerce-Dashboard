@@ -29,6 +29,7 @@ class SellerController {
                 res.status(400).send({"status":"failed","message":"All Fields are required"}) ;
             }
         }catch(err){
+            console.log(err);
             res.status(500).send({"status":"failed","message":"Internal Server Error"}); 
         }
     }
