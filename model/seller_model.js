@@ -15,6 +15,10 @@ const SellerSchema = new mongoose.Schema({
         }
         
     },
+    userID:{
+        type:String,
+        required:true,
+    },
     name:{
         type:String,
         required:true, 
