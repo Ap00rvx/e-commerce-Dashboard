@@ -45,7 +45,7 @@ class UserController{
                     const isMatch = await bcrypt.compare(password,user.password); 
                     if(isMatch){
                         const token = await jwt.sign({userID:user.userID},process.env.SECRET_KEY,{expiresIn :"150d"}); 
-                        res.send({ "status": "success", "message": "Login Success","token":token,user:user});
+                        res.send({ "status": "success", "message": "Login Success","token":token});
                     }else{
                         return res.send({"status":"failed","message":"InValid Password"});
                     }
@@ -58,6 +58,20 @@ class UserController{
             }
         }catch(err){
             res.status(500).send({"status":"failed","message":"Internal Server Error"});
+        }
+    }
+    static profile = async(req,res) => {
+        const userID = req.user._id; 
+        if(userID){
+           const user = await User.findById(userID).select("-password ");
+            if(user){
+               res.send({'status':"success","user":user}); 
+            }else{
+                res.status(404).send({"status":"failed","message":"User not found"});
+            }
+        }
+        else{
+            return res.status(401).send({"status":"failed","message":"Unauthorized"});
         }
     }
 }
