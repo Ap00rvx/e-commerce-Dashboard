@@ -5,7 +5,7 @@ const middleware = require("../middleware/user_middleware");
 
 router.post("/register",controller.register);
 router.post("/login",controller.login);
-
+router.post("/verify",controller.verifyOtp); 
 
 router.get('/profile',middleware,controller.profile); 
 module.exports = router; 

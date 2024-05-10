@@ -24,7 +24,7 @@ class UserController{
                     email:email, 
                 }); 
                 await user.save(); 
-                console.log("user data saved"); 
+                // console.log("user data saved"); 
                 const saved_user =await User.findOne({email:email});
                 const token = jwt.sign({userID:saved_user._id},process.env.SECRET_KEY,{expiresIn : '150d'});
                 const newOtp  = otpGenerator.generate(6, {upperCaseAlphabets: false, lowerCaseAlphabets:false, specialChars: false,digits:true});
@@ -84,5 +84,36 @@ class UserController{
             return res.status(401).send({"status":"failed","message":"Unauthorized"});
         }
     }
+    static verifyOtp = async(req,res) => {
+        const {email,otp} = req.body; 
+        if(!email && !otp){
+            return res.send({status:"failed","message":"All fields are required"}); 
+        }
+        else{
+        try{
+            const secureOtp = await OTP.findOneAndDelete({email:email});
+            if(secureOtp){
+                if(otp === secureOtp.otp){
+                    const user = await User.findOneAndUpdate({ email: email }, { isVerified: true });
+                    return res.status(200).json({ message: "OTP Verified" });
+                }
+                else{
+                    res.send({status:"failed",message :"Wrong Otp"}); 
+                }
+            }else{
+                const newOtp  = otpGenerator.generate(6, {upperCaseAlphabets: false, lowerCaseAlphabets:false, specialChars: false,digits:true});
+                const otpmodel = new OTP({
+                    email:email,
+                    otp:newOtp,
+                });
+                await sendMail(email,newOtp,"");     
+                await otpmodel.save(); 
+                res.status(400).send({"status":"failed","message":"OTP expired, New otp has been sent"}); 
+            }
+        }catch (err){
+            res.status(500).send({message:"Internal server error "}); 
+        }
+    }
+}
 }
 module.exports = UserController; 
