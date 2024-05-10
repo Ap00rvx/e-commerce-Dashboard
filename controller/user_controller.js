@@ -2,8 +2,9 @@ const bcrypt = require('bcrypt');
 const jwt = require("jsonwebtoken"); 
 const User = require("../model/user_model"); 
 const UserModel = require('../model/user_model');
-
-
+const sendMail = require('../helper/node_mailer');
+const otpGenerator = require("otp-generator"); 
+const OTP = require("../model/otp_model")
 class UserController{
     static register = async (req,res) => {
         try {
@@ -23,8 +24,17 @@ class UserController{
                     email:email, 
                 }); 
                 await user.save(); 
+                console.log("user data saved"); 
                 const saved_user =await User.findOne({email:email});
                 const token = jwt.sign({userID:saved_user._id},process.env.SECRET_KEY,{expiresIn : '150d'});
+                const newOtp  = otpGenerator.generate(6, {upperCaseAlphabets: false, lowerCaseAlphabets:false, specialChars: false,digits:true});
+                const otpmodel = new OTP({
+                    email:email,
+                    otp:newOtp,
+                });
+                await sendMail(email,newOtp,name);     
+                await otpmodel.save(); 
+                      
                 res.status(201).send({"status":"success", "message":"User created successfully","user":saved_user,"token":token}); 
             }else{
                 res.send({"status":"failed","message":"All fields are required"}); 

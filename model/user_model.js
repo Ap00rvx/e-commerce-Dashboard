@@ -48,6 +48,10 @@ const UserSchema = new mongoose.Schema({
     orders:{
         type:Array,
         default :[]
+    },
+    created:{
+        type:Date,
+        default:Date.now()
     }
 }); 
 const UserModel = mongoose.model("user",UserSchema); 
