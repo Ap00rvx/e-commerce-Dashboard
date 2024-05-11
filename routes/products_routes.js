@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router(); 
 const controlller = require("../controller/product_controller"); 
+const sellerMiddleware = require("../middleware/seller_middleware");
 
-
-router.post("/createSeller",controlller.createProduct); 
+router.post("/createProduct",sellerMiddleware,controlller.createProduct); 
 module.exports = router; 
