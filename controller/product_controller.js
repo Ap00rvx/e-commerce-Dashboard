@@ -6,22 +6,22 @@ const SellerModel  = require("../model/seller_model");
 class ProductController {
     static  createProduct = async(req,res) => {
         try{
-           
             const {title,description,price,category,userID} = req.body;
             if(title && description && price && userID && category){
                 const newproduct = new ProductModel({
                     title:title, 
                     description:description,
                     userID:userID,
+                    price:price,
                     category:category
                 }); 
                 await newproduct.save();
                 const productID = newproduct.productID;
-                const seller =await SellerModel.findOne({sellerId :userID}); 
+                const seller =await SellerModel.findOne({sellerId:userID}); 
                 if(seller){
                     let products = seller.products;
                     products.push(productID); 
-                    const updatedSeller = await SellerModel.findByIdAndUpdate({sellerId:userID},{products:products}); 
+                    const updatedSeller = await SellerModel.findByIdAndUpdate(userID,{products:products}); 
                     res.status(201).send({"status":"success","message":"Product Created"});  
                 }
                 else{
@@ -37,5 +37,32 @@ class ProductController {
             res.status(500).send({"status":"failed","message":"Internal Server Error"}); 
         }
     }
+    static getProductByCategory = async(req,res) => {
+        const category = req.params.category ; 
+        console.log(category);
+        try {
+            const products = await ProductModel.find({category:category});
+            if(!products){
+                return res.send({"status":"success","products":"Category Doesn't exits "}); 
+            }
+            return res.status(200).send({status:"success",products:products}); 
+        }catch(err){
+            return res.status(500).send({"message":"Internal Server error"}); 
+        }
+    }
+    static searchProduct = async(req,res) =>{
+        const query = req.query.search; 
+        try {
+            const products = await ProductModel.find({ title: { $regex: query, $options: 'i' } });
+            if (products.length === 0) {
+                return res.status(404).json({ status: "success", message: "Product not found" }); 
+            }
+            return res.status(200).json({ status: "success", products: products }); 
+        } catch (err) {
+            console.error("Internal Server Error:", err);
+            return res.status(500).json({ message: "Internal Server error" }); 
+        }
+        
+    } 
 }
 module.exports = ProductController ;

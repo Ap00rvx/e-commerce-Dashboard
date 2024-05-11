@@ -21,7 +21,7 @@ class SellerController {
                         phone:phone, 
                     }); 
                     await newSeller.save();
-                    await UserModel.findByIdAndUpdate({userID:userID},{role:'seller'}); 
+                    await UserModel.findByIdAndUpdate(userID,{role:'seller'}); 
                     return res.status(201).send({"status":"success","message":"Seller created Successfully!"}); 
                 }
 
