@@ -5,6 +5,7 @@ const UserModel = require('../model/user_model');
 const sendMail = require('../helper/node_mailer');
 const otpGenerator = require("otp-generator"); 
 const OTP = require("../model/otp_model")
+const Product = require("../model/product_model")
 class UserController{
     static register = async (req,res) => {
         try {
@@ -133,6 +134,79 @@ class UserController{
         } catch (error) {
             console.error("Error updating profile:", error);
             res.status(500).json({ status: "error", message: "Internal server error" });
+        }
+    }
+    static addtoCart = async(req,res) => {
+        try {
+            const productID = req.header("product");
+            const userID = req.user._id; 
+            if(userID && productID){
+                const  user = await User.findOne({userID:userID}); 
+                if (user){
+                    let cartItems = user.cart ; 
+                    cartItems.push(productID); 
+                    await user.updateOne({cart:cartItems});
+                    return res.send({status:"failed","message":"Added to cart"}); 
+                }else{
+                    return res.status(404).send({status:"failed",message:"user not found"}); 
+                }
+            } else{
+                res.status(402).send({"status":"failed",message:"All fields are required"});
+            }
+        }catch(err){
+            console.log(err);
+            res.status(500).send({"message":"Internal Server Error"}); 
+        }
+        
+    }
+    static getCart = async(req,res) => {
+        try {
+        const userID = req.user._id; 
+        if(!userID){
+            return res.status(401).send({"status":'failed',"message":"not authorized"});
+        }
+        else{
+            const user = await  User.findOne({userID:userID}); 
+            let cart = []; 
+            const cartItems = user.cart;
+            for(let index in cartItems){
+                const product = await Product.findOne({productID:cartItems[index]});
+                if(product)
+                    {
+                        cart.push(product); 
+                    } 
+            }
+            return res.send({status:"success",cart: cart}); 
+        }
+    }catch(err){
+        console.log(err);
+        return res.status(500).send({status:"failed",message:"Internal Server error"});
+    }
+    }
+    static removeFromCart = async (req, res) => {
+        try {
+            const userID = req.user._id;
+            const productID = req.header("product");
+            if (!userID) {
+                return res.status(401).send({ status: 'failed', message: "Not authorized" });
+            } else {
+                // Find the user by userID
+                const user = await User.findOne({ _id: userID });
+                if (!user) {
+                    return res.status(404).send({ status: 'failed', message: "User not found" });
+                }
+    
+                // Remove the productID from the cartItems array
+                user.cart = user.cart.filter(itemId => itemId.toString() !== productID);
+    
+                // Save the updated user document
+                await user.save();
+    
+                return res.status(200).send({ status: "success", message: "Product removed from cart" });
+            }
+        } catch (err) {
+            console.error("Error removing product from cart:", err);
+            return res.status(500).send({ status: "failed", message: "Internal Server error" });
         }
     }
     

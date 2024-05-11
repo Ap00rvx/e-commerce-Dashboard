@@ -9,7 +9,6 @@ var checkAuthToken = async (req,res,next )=> {
     }else{
         try {
             const userId = jsonwebtoken.verify(token, process.env.SECRET_KEY);
-            console.log(userId['userID']);
             req.user = await User.findById(userId['userID']).select('-password');
             next(); 
         }catch(err){
