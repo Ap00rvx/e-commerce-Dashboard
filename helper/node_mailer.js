@@ -14,11 +14,11 @@ const transporter = nodemailer.createTransport({
 });
 const sendMail = async (email,otp, name) =>  {
   await transporter.sendMail({
-    from: '"Apurva B Raj" <secureboot08@gmail.com>',
+    from: '"ShopieZone" <secureboot08@gmail.com>',
     to: email ,
     subject : "Verification OTP",
     // html :`<p>Hello ${name},</p><p>This is your one-time password: ${otp}</p>`,
-    text : "Hello"+name+"This is your one time password "+otp ,
+    text : "Hello "+name+" ,\nWelcome to ShopieZone, This is your one time password "+otp ,
     
   });
   console.log("email sent");

@@ -8,4 +8,5 @@ router.post("/login",controller.login);
 router.post("/verify",controller.verifyOtp); 
 
 router.get('/profile',middleware,controller.profile); 
+router.post("/updateProfile",middleware,controller.updateProfile);
 module.exports = router; 

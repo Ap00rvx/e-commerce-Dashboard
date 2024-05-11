@@ -114,6 +114,27 @@ class UserController{
             res.status(500).send({message:"Internal server error "}); 
         }
     }
-}
+    }
+    static updateProfile = async (req, res) => {
+        const data = req.body;
+        console.log(data); // Log the data object
+    
+        const userID = req.user._id;
+        if (!userID) {
+            return res.status(404).json({ status: "failed", message: "User Id not found" });
+        }
+    
+        try {
+            const user = await User.findByIdAndUpdate(userID, data, { new: true });
+            if (!user) {
+                return res.status(404).json({ status: "failed", message: "User not found" });
+            }
+            res.json({ status: "success", message: "Profile updated", user });
+        } catch (error) {
+            console.error("Error updating profile:", error);
+            res.status(500).json({ status: "error", message: "Internal server error" });
+        }
+    }
+    
 }
 module.exports = UserController; 
