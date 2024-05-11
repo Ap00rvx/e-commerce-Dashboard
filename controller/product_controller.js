@@ -6,13 +6,14 @@ const SellerModel  = require("../model/seller_model");
 class ProductController {
     static  createProduct = async(req,res) => {
         try{
-            const {title,description,price,category,userID} = req.body;
-            if(title && description && price && userID && category){
+            const {title,description,price,category,userID,quantity} = req.body;
+            if(title && description && price && userID && category && quantity){
                 const newproduct = new ProductModel({
                     title:title, 
                     description:description,
                     userID:userID,
                     price:price,
+                    quantity:quantity,
                     category:category
                 }); 
                 await newproduct.save();

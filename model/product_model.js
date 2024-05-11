@@ -34,9 +34,21 @@ const ProductSchema = new mongoose.Schema({
         type :Number,
         default:0.0
     },
+    createdAt:{
+        type:Date,
+        default:Date.now()
+    },
     category:{
         type:String,
         default:"unknown"
+    },
+    quantity:{
+        type:Number,
+        required:true 
+    },
+    available:{
+        type:Boolean,
+        default: this.quantity > 0 ? true:false
     }
 }); 
 const ProductModel =  mongoose.model("product",ProductSchema); 

@@ -209,6 +209,26 @@ class UserController{
             return res.status(500).send({ status: "failed", message: "Internal Server error" });
         }
     }
+    static changePassword = async(req,res) => {
+        const userID = req.user._id ;
+        const newPassword = req.header("password"); 
+        if(!userID){
+            return res.send({status:"failed",message:"UnAuthorized request"}); 
+        }
+        else{
+            try {
+            const user= await UserModel.findOne({userID:userID}); 
+            const salt = await bcrypt.genSalt(10); 
+            const hashedPwd= await bcrypt.hash(newPassword,salt); 
+            user.password = hashedPwd; 
+            await user.save(); 
+            res.status(200).send({"status":"success","message":"Password Changed"}); 
+            }
+            catch(err){
+                res.status(500).send({"status":"failed","message":"Internal Server Error"}); 
+            }
+        }
+    }
     
 }
 module.exports = UserController; 

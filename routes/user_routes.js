@@ -18,5 +18,7 @@ router.post("/updateProfile",middleware,controller.updateProfile);
 router.get("/addToCart",middleware,controller.addtoCart); 
 router.get("/cart",middleware,controller.getCart); 
 router.get("/remove",middleware,controller.removeFromCart); 
+router.get("/changepwd",middleware,controller.changePassword); 
+
 
 module.exports = router; 
