@@ -65,5 +65,36 @@ class ProductController {
         }
         
     } 
+    static updateProduct = async (req, res) => {
+        const userID = req.user._id;
+        if (userID) {
+            const productID = req.header("product");
+            const data = req.body;
+            try {
+                const product = await Product.findOne({ _id: productID });
+                if (!product) {
+                    return res.status(404).send({ status: "failed", message: "Product not found" });
+                }
+                const seller = await SellerModel.findOne({userID :userID}); 
+                if (product.userID.toString() !== seller.sellerId.toString()) {
+                    return res.status(401).send({ status: "failed", message: "Unauthorized Seller" });
+                }
+                // Update only specific fields
+                Object.keys(data).forEach(key => {
+                    if (key in product) {
+                        product[key] = data[key];
+                    }
+                });
+                await product.save();
+                return res.status(200).send({ status: "success", message: "Product updated successfully", product });
+            } catch (err) {
+                console.error("Error updating product:", err);
+                return res.status(500).send({ status: "failed", message: "Internal Server error" });
+            }
+        } else {
+            return res.status(401).send({ status: "failed", message: "Unauthorized" });
+        }
+    }
+    
 }
 module.exports = ProductController ;
