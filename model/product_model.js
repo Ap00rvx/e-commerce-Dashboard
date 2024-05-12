@@ -48,7 +48,9 @@ const ProductSchema = new mongoose.Schema({
     },
     available:{
         type:Boolean,
-        default: this.quantity > 0 ? true:false
+        default: function() {
+            return this.quantity > 0;
+        }
     }
 }); 
 const ProductModel =  mongoose.model("product",ProductSchema); 

@@ -5,7 +5,9 @@ const UserModel = require('../model/user_model');
 const sendMail = require('../helper/node_mailer');
 const otpGenerator = require("otp-generator"); 
 const OTP = require("../model/otp_model")
-const Product = require("../model/product_model")
+const Product = require("../model/product_model");
+const SellerModel = require('../model/seller_model');
+const Order = require('../model/order_model');
 class UserController{
     static register = async (req,res) => {
         try {
@@ -227,6 +229,62 @@ class UserController{
             catch(err){
                 res.status(500).send({"status":"failed","message":"Internal Server Error"}); 
             }
+        }
+    }
+    static createOrder = async(req,res) => {
+        try {
+        const userID = req.user._id ;
+        console.log(userID);
+        let productID = req.header("product");
+        const {quantity} = req.body; 
+        console.log(productID);
+        if(!userID && !productID){
+            console.log("here10");
+            return res.status(400).send({"status":"failed","message":"Not Authorized"}); 
+        }
+        else{
+            let product = await Product.findOne({productID:productID}); 
+            console.log("here");
+            if(!product){
+                return res.status(404).send({"status":"failed",message:"Product Not found"}); 
+            }
+            if(product.quantity >=1){
+                const order = new Order({
+                    user:userID,
+                    seller:product.userID,
+                    product:productID,
+                    quantity:  quantity
+                });
+                const createdOrder = await order.save(); 
+                product.quantity -= quantity;
+                let seller = await SellerModel.findOne({sellerId:product.userID}); 
+                seller.orders.push(createdOrder._id); 
+                let user = await User.findOne({_id: userID});
+                user.orders.push(createdOrder._id);  
+                await seller.save(); 
+                await product.save();
+                await user.save(); 
+                res.status(200).send({status:"success",message:"order placed!"})
+            }else{
+                res.send({"status":"failed","message":"Out of Stock"}); 
+            }
+        }
+    }catch(err){
+        console.log(err);
+        return res.status(500).send({status:"failed",message:"Internal Server Error"});
+    }
+    }
+    static getOrders  = async(req,res) => {
+        const userID = req.user._id; 
+        try {
+            const orders = await Order.find({ user: userID });
+            if (!orders || orders.length === 0) {
+                return res.status(404).json({ status: "failed", message: "No orders found for this user" });
+            }
+            return res.status(200).json({ status: "success", orders: orders });
+        }catch(err){
+            console.log(err);
+            res.status(500).send({'status':'failed','message':'Internal Server Error'}) 
         }
     }
     

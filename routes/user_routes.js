@@ -20,5 +20,7 @@ router.get("/cart",middleware,controller.getCart);
 router.get("/remove",middleware,controller.removeFromCart); 
 router.get("/changepwd",middleware,controller.changePassword); 
 
+router.get("/orders",middleware,controller.getOrders); 
+router.post("/createOrder",middleware,controller.createOrder); 
 
 module.exports = router; 

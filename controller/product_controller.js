@@ -95,6 +95,7 @@ class ProductController {
             return res.status(401).send({ status: "failed", message: "Unauthorized" });
         }
     }
+   
     
 }
 module.exports = ProductController ;
