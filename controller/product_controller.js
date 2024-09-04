@@ -79,7 +79,6 @@ class ProductController {
                 if (product.userID.toString() !== seller.sellerId.toString()) {
                     return res.status(401).send({ status: "failed", message: "Unauthorized Seller" });
                 }
-                // Update only specific fields
                 Object.keys(data).forEach(key => {
                     if (key in product) {
                         product[key] = data[key];
@@ -94,8 +93,6 @@ class ProductController {
         } else {
             return res.status(401).send({ status: "failed", message: "Unauthorized" });
         }
-    }
-   
-    
+    } 
 }
 module.exports = ProductController ;
